@@ -2,6 +2,14 @@
 <html lang="en">
 
 <head>
+  <!-- Step 5 - The Global Error handler and 3rd Party Tracking-->
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "d1a3cbf788574709a3bc40296e37316c"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -89,19 +97,86 @@
 
   <script>
     let form = document.querySelector('form');
+    let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
+
+    // Start your code here
+    // You may move this JS to another file if you wish
+
+    // Step 4 Throw and Custom Errors
+    class CustomError extends Error {
+      constructor(errorType, cause) {
+        super(errorType);
+        this.name = errorType;
+        this.cause = cause;
+      }
+    }
+
+    // Step 3 and Step 4 Trying Try/Catch and Throw and Custom Errors
     form.addEventListener('submit', e => {
       e.preventDefault();
       let output = document.querySelector('output');
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+
+      try {
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      } catch (err) {
+        if (err instanceof ReferenceError) {
+          throw new CustomError('NotDefinedError:', err.message);
+        } else {
+          console.error('An unexpected error occurred:', err);
+        }
+      }
     });
 
-    let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
 
-    // Start your code here
-    // You may move this JS to another file if you wish
+    // Step 2 - Adding Buttons for Console Testing
+    const someData = [
+      { name: 'Professor Powell', age: 25 },
+      { name: 'My Cat', age: 1 },
+      { name: 'Not My Cat', age: -100 }
+    ];
+
+    const handleBtnClick = [
+      () => console.log('Console Log Demo'),
+      () => console.error('Console Error Demo'),
+      () => console.count('Count Button'),
+      () => console.warn('Console Warn Button'),
+      () => console.assert(false, { number: 2, errorMsg: 'The number does not equal 3' }),
+      () => console.clear('Console was cleared'),
+      () => console.dir(errorBtns[6]),
+      () => console.dirxml(errorBtns[7]),
+      () => console.group('console.group'),
+      () => console.groupEnd(),
+      () => console.table(someData),
+      () => console.time('Timer Button'),
+      () => console.timeEnd('Timer Button'),
+      () => {
+        function deep() {
+          function deeper() {
+            function deepest() {
+              console.trace('console.trace');
+            }
+            deepest();
+          }
+          deeper();
+        }
+        deep();
+      },
+      // Step 5 - The Global Error handler and 3rd Party Tracking
+      () => {
+        try {
+          document.querySelector("button").deep();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    ];
+
+    errorBtns.forEach((btn, idx) => {
+      if (handleBtnClick[idx]) btn.addEventListener('click', handleBtnClick[idx]);
+    });
   </script>
 </body>
 
